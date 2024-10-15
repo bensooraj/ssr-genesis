@@ -4,11 +4,17 @@ import { renderToString } from 'react-dom/server'
 import { createMemoryHistory } from '@tanstack/react-router'
 import { StartServer } from '@tanstack/start/server'
 import { createRouter } from './router'
-// import { Response } from 'express'
+import express from 'express'
 
-export async function render(url: string, response: any) {
-  console.log("url", url)
-  console.log("response", response)
+export async function render({ url, template, ssrManifest, req, res }: {
+  url: string,
+  template: string,
+  ssrManifest: string | undefined,
+  req: express.Request
+  res: express.Response
+}) {
+  console.log("url: ", url)
+  // console.log("response", res)
   const router = createRouter()
 
   const memoryHistory = createMemoryHistory({
@@ -26,9 +32,12 @@ export async function render(url: string, response: any) {
       <StartServer router={router} />
     </StrictMode>,
   )
-  // return { appHtml }
 
-  response.statusCode = router.hasNotFoundMatch() ? 404 : 200
-  response.setHeader('Content-Type', 'text/html')
-  response.end(`<!DOCTYPE html>${appHtml}`)
+  const html = template
+      .replace(`<!--app-html-->`, appHtml ?? '')
+
+  res.statusCode = router.hasNotFoundMatch() ? 404 : 200
+  res.setHeader('Content-Type', 'text/html')
+  res.end(`<!DOCTYPE html>${html}`)
+  return { html }
 }

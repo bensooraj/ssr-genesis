@@ -8,7 +8,7 @@ import { createRouter } from './router'
 const router = createRouter()
 
 hydrateRoot(
-  document.getElementById('root')!,
+  document.getElementById('root') as HTMLElement,
   <StrictMode>
     <StartClient router={router} />
   </StrictMode>,
